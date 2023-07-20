@@ -1,10 +1,14 @@
 package com.Kafka_microservices.productservice.service;
 
+import com.Kafka_microservices.productservice.dto.ProductResponse;
 import com.Kafka_microservices.productservice.exceptions.ProductNotFoundException;
 import com.Kafka_microservices.productservice.model.Product;
 import com.Kafka_microservices.productservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -23,5 +27,16 @@ public class ProductService {
 
     public Product productToBeCreated(Product createAProduct) {
         return productRepository.save(createAProduct);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> isInStock(List<String> skuCode) {
+        return productRepository.findBySkuCodeIn(skuCode).stream()
+                .map(product ->
+                    ProductResponse.builder()
+                            .skuCode(product.getSkuCode())
+                            .isInStock(product.getQuantity() > 0)
+                            .build()
+                ).toList();
     }
 }

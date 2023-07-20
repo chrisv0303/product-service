@@ -1,5 +1,6 @@
 package com.Kafka_microservices.productservice.controller;
 
+import com.Kafka_microservices.productservice.dto.ProductResponse;
 import com.Kafka_microservices.productservice.exceptions.ProductNotFoundException;
 import com.Kafka_microservices.productservice.model.Product;
 import com.Kafka_microservices.productservice.service.ProductService;
@@ -10,7 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("/api/inventory")
 public class ProductController {
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
@@ -42,5 +46,13 @@ public class ProductController {
         Product createProduct = productService.productToBeCreated(createAProduct);
         log.info("Successfully created a product");
         return new ResponseEntity<>(createProduct, HttpStatus.CREATED);
+    }
+
+
+    // http://localhost:8081/api/inventory?skuCode={skuCode_name}
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductResponse> isInStock(@RequestParam List<String> skuCode) {
+        return productService.isInStock(skuCode);
     }
 }
